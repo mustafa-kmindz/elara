@@ -1,5 +1,5 @@
 var apiUrl = location.protocol + '//' + location.host + "/api/";
-
+//var apiUrl = "http://3.16.137.69:8000/api/";
 console.log("at register.js");
 
 //check user input and call server to create dataset

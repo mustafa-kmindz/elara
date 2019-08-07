@@ -4,6 +4,7 @@ const { Contract } = require('fabric-contract-api');
 const allPartnersKey = 'all-partners';
 const earnPointsTransactionsKey = 'earn-points-transactions';
 const usePointsTransactionsKey = 'use-points-transactions';
+const addProductTransactionsKey = 'add-product-transactions';
 
 class CustomerLoyalty extends Contract {
 
@@ -15,6 +16,7 @@ class CustomerLoyalty extends Contract {
         await ctx.stub.putState(allPartnersKey, Buffer.from(JSON.stringify([])));
         await ctx.stub.putState(earnPointsTransactionsKey, Buffer.from(JSON.stringify([])));
         await ctx.stub.putState(usePointsTransactionsKey, Buffer.from(JSON.stringify([])));
+        await ctx.stub.putState(addProductTransactionsKey, Buffer.from(JSON.stringify([])));
 
         console.info('============= END : Initialize Ledger ===========');
     }
@@ -83,6 +85,30 @@ class CustomerLoyalty extends Contract {
         return JSON.stringify(usePoints);
     }
 
+    async AddProduct(ctx, addProduct) {
+        addProduct = JSON.parse(addProduct);
+        console.log("add Product: "+addProduct)
+        let addProductTransactions = await ctx.stub.getState(addProductTransactionsKey);
+        addProductTransactions = JSON.parse(addProductTransactions);
+        addProductTransactions.push(addProduct);
+        await ctx.stub.putState(addProductTransactionsKey, Buffer.from(JSON.stringify(addProductTransactions)));
+
+        return JSON.stringify(addProduct);
+    }
+
+    async AddProductTransactionsInfo(ctx, partnerId) {
+        let transactions = await ctx.stub.getState(addProductTransactionsKey);
+        transactions = JSON.parse(transactions);
+        console.log("Transaction: "+transactions);
+        let userTransactions = [];
+        for (var transaction of transactions) {
+            if (transaction.partner == partnerId){
+                userTransactions.push(transaction);
+            }
+        }
+        return JSON.stringify(userTransactions);
+    }
+
     // Get earn points transactions of the particular member or partner
     async EarnPointsTransactionsInfo(ctx, userType, userId) {
         let transactions = await ctx.stub.getState(earnPointsTransactionsKey);
@@ -134,5 +160,6 @@ class CustomerLoyalty extends Contract {
     }
 
 }
+
 
 module.exports = CustomerLoyalty;

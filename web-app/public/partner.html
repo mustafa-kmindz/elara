@@ -7,6 +7,7 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="stylesheets/style.css">
 </head>
 
@@ -92,6 +93,9 @@
           <li class="nav-item tab-width">
             <a class="nav-link" id="transactions-tab" data-toggle="tab" href="#transactions" role="tab" aria-controls="transactions" aria-selected="false">Transactions</a>
           </li>
+           <li class="nav-item tab-width">
+            <a class="nav-link" id="offers-tab" data-toggle="tab" href="#offers" role="tab" aria-controls="offers" aria-selected="false">Offers</a>
+          </li>
         </ul>
       </div>
       <div class="row">
@@ -134,16 +138,55 @@
 
             </div>
           </div>
+          <div class="tab-pane fade" id="offers" role="tabpanel" aria-labelledby="offers-tab">
+               <br>
+            <button type="button" class="btn btn-lg btn-success" data-toggle="modal" data-target="#productModal"><i class="fa fa-plus"></i> Add Product</button>
 
+            <!-- Modal HTML -->
+            <div id="productModal" class="modal fade" >
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add Product</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                
+                              <div class="form-group">
+                                <label for="usrname"><span class="glyphicon glyphicon-user"></span> Product</label>
+                                <input type="text" class="form-control" id="offerproduct" placeholder="Product">
+                              </div>
+                              <div class="form-group">
+                                <label for="price"><span class="glyphicon glyphicon-eye-open"></span> Price</label>
+                                <input type="text" class="form-control" id="offerprice" placeholder="Enter Price">
+                              </div>
+                              <div class="form-group">
+                                <label for="points"><span class="glyphicon glyphicon-eye-open"></span> Points</label>
+                                <input type="text" class="form-control" id="offerpoints" placeholder="Enter Points">
+                              </div>
+                              <button type="submit" id="add_offer" class="btn btn-default btn-success btn-block"><span class="glyphicon glyphicon-off"></span> Submit</button>
+                            
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br>
+            <br>
+            <h1>Product List</h1>
+            <div class="rows" id="productlist">
+              
+            </div>
+          </div>
+    </div>
+    <div class="container text-center">
+        <div class="container text-center">
+          <div class="loader" id="loader" style="display:none;"></div>
         </div>
       </div>
-
-      <div class="container text-center">
-        <div class="loader" id="loader" style="display:none;"></div>
-      </div>
-
-    </div>
-
 
 </body>
 

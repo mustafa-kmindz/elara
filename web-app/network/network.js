@@ -118,7 +118,7 @@ module.exports = {
       console.log('\nGet member state ');
       const memberResponse = await contract.evaluateTransaction('GetState', accountNumber);
       console.log('memberResponse.parse_response: ')
-      console.log(JSON.parse(JSON.parse(memberResponse.toString())));
+      console.log(JSON.parse(memberResponse.toString()));
 
       // Disconnect from the gateway.
       await gateway2.disconnect();
@@ -224,7 +224,7 @@ module.exports = {
       console.log('\nGet partner state ');
       const partnerResponse = await contract.evaluateTransaction('GetState', partnerId);
       console.log('partnerResponse.parse_response: ')
-      console.log(JSON.parse(JSON.parse(partnerResponse.toString())));
+      console.log(JSON.parse(partnerResponse.toString()));
 
       // Disconnect from the gateway.
       await gateway2.disconnect();
@@ -240,6 +240,59 @@ module.exports = {
     }
 
   },
+
+  /*
+  * Perform AddProduct transaction
+  * @param {String} cardId Card id to connect to network
+  * @param {String} partnerId Partner Id of partner
+  * @param {String} productName Name of Product to be added
+  * @param {Integer} price Price of the product
+  * @param {Integer} points Points value
+  */
+ addProductTransaction: async function (cardId, partnerId, productName, price, points) {
+
+  // Create a new file system based wallet for managing identities.
+  const walletPath = path.join(process.cwd(), '/wallet');
+  const wallet = new FileSystemWallet(walletPath);
+  console.log(`Wallet path: ${walletPath}`);
+
+  try {
+    // Create a new gateway for connecting to our peer node.
+    const gateway2 = new Gateway();
+    await gateway2.connect(ccp, { wallet, identity: cardId, discovery: gatewayDiscovery });
+
+    // Get the network (channel) our contract is deployed to.
+    const network = await gateway2.getNetwork('mychannel');
+
+    // Get the contract from the network.
+    const contract = network.getContract('customerloyalty');
+    
+    let addProduct = {};
+    addProduct.partner = partnerId;
+    addProduct.points = points;
+    addProduct.product = productName;
+    addProduct.price = price;
+
+    // Submit the specified transaction.
+    console.log('\nSubmit AddProduct transaction.');
+    const addProductResponse = await contract.submitTransaction('AddProduct', JSON.stringify(addProduct));
+    console.log('addProductResponse: ');
+    console.log(JSON.parse(addProductResponse.toString()));
+
+    // Disconnect from the gateway.
+    await gateway2.disconnect();
+
+    return true;
+  }
+  catch(err) {
+    //print and return error
+    console.log(err);
+    var error = {};
+    error.error = err.message;
+    return error;
+  }
+
+},
 
   /*
   * Perform EarnPoints transaction
@@ -368,7 +421,7 @@ module.exports = {
 
       console.log('\nGet member state ');
       let member = await contract.submitTransaction('GetState', accountNumber);
-      member = JSON.parse(JSON.parse(member.toString()));
+      member = JSON.parse(member.toString());
       console.log(member);
 
       // Disconnect from the gateway.
@@ -411,7 +464,7 @@ module.exports = {
 
       console.log('\nGet partner state ');
       let partner = await contract.submitTransaction('GetState', partnerId);
-      partner = JSON.parse(JSON.parse(partner.toString()));
+      partner = JSON.parse(partner.toString());
       console.log(partner);
 
       // Disconnect from the gateway.
@@ -453,7 +506,7 @@ module.exports = {
 
       console.log('\nGet all partners state ');
       let allPartners = await contract.evaluateTransaction('GetState', 'all-partners');
-      allPartners = JSON.parse(JSON.parse(allPartners.toString()));
+      allPartners = JSON.parse(allPartners.toString());
       console.log(allPartners);
 
       // Disconnect from the gateway.
@@ -469,6 +522,49 @@ module.exports = {
       return error
     }
   },
+
+
+  /*
+  * Get all AddProduct transactions data
+  * @param {String} cardId Card id to connect to network
+  */
+ addProductTransactionsInfo: async function (cardId, userId) {
+
+  // Create a new file system based wallet for managing identities.
+  const walletPath = path.join(process.cwd(), '/wallet');
+  const wallet = new FileSystemWallet(walletPath);
+  console.log(`Wallet path: ${walletPath}`);
+
+  try {
+    // Create a new gateway for connecting to our peer node.
+    const gateway2 = new Gateway();
+    await gateway2.connect(ccp, { wallet, identity: cardId, discovery: gatewayDiscovery });
+
+    // Get the network (channel) our contract is deployed to.
+    const network = await gateway2.getNetwork('mychannel');
+
+    // Get the contract from the network.
+    const contract = network.getContract('customerloyalty');
+
+    console.log(`\nGet add product transactions state for ${userId}`);
+    let addProductTransactions = await contract.evaluateTransaction('AddProductTransactionsInfo', userId);
+    addProductTransactions = JSON.parse(addProductTransactions.toString());
+    console.log(addProductTransactions);
+
+    // Disconnect from the gateway.
+    await gateway2.disconnect();
+
+    return addProductTransactions;
+  }
+  catch(err) {
+    //print and return error
+    console.log(err);
+    var error = {};
+    error.error = err.message;
+    return error
+  }
+
+},
 
   /*
   * Get all EarnPoints transactions data
@@ -494,7 +590,7 @@ module.exports = {
 
       console.log(`\nGet earn points transactions state for ${userType} ${userId}`);
       let earnPointsTransactions = await contract.evaluateTransaction('EarnPointsTransactionsInfo', userType, userId);
-      earnPointsTransactions = JSON.parse(JSON.parse(earnPointsTransactions.toString()));
+      earnPointsTransactions = JSON.parse(earnPointsTransactions.toString());
       console.log(earnPointsTransactions);
 
       // Disconnect from the gateway.
@@ -536,7 +632,7 @@ module.exports = {
 
       console.log(`\nGet use points transactions state for ${userType} ${userId}`);
       let usePointsTransactions = await contract.evaluateTransaction('UsePointsTransactionsInfo', userType, userId);
-      usePointsTransactions = JSON.parse(JSON.parse(usePointsTransactions.toString()));
+      usePointsTransactions = JSON.parse(usePointsTransactions.toString());
       console.log(usePointsTransactions);
 
       // Disconnect from the gateway.

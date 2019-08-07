@@ -1,5 +1,5 @@
 var apiUrl = location.protocol + '//' + location.host + "/api/";
-
+//var apiUrl = "http://3.16.137.69:8000/api/";
 //check user input and call server
 $('.sign-in-member').click(function() {
   updateMember();
@@ -28,6 +28,7 @@ function updateMember() {
     },
     success: function(data) {
 
+      console.log(data);
       //remove loader
       document.getElementById('loader').style.display = "none";
 
@@ -87,6 +88,12 @@ function updateMember() {
             str = str + '<p>timeStamp: ' + transactionData[i].timestamp + '<br />partner: ' + transactionData[i].partner + '<br />member: ' + transactionData[i].member + '<br />points: ' + transactionData[i].points + '<br />transactionID: ' + transactionData[i].transactionId + '</p><br>';
           }
           return str;
+        });
+
+        $('#loyalty').html(function() {
+
+          var htmls='';
+          return htmls;
         });
 
         //remove login section and display member page
@@ -183,6 +190,82 @@ function earnPoints(formPoints) {
   });
 
 }
+
+
+$('.use-partner select').on('change', function() {
+   var partnerid = $(this).find(':selected').attr('partner-id');
+   var formCardId = $('.card-id input').val();
+   //create json data
+  var inputData = '{' + '"partnerId" : "' + partnerid + '", ' + '"cardId" : "' + formCardId + '"}';
+  console.log(inputData)
+
+  //$('#loyalty').html(function() {
+
+    //var pl = '';
+    //var transactionData = data.productResults;
+    // var products=[
+    //   {
+    //     "product": "Tshirt",
+    //     "price": "2000",
+    //     "points": 20,
+    //   },
+    //   {
+    //     "product": "Jeans",
+    //     "price": "3000",
+    //     "points": 30,
+    //   },
+    //   {
+    //     "product": "watch",
+    //     "price": "5000",
+    //     "points": 50,
+    //   }
+    // ];
+
+  //   for (var i = 0; i < products.length; i++) {
+  //           pl = pl + '<button class="btn btn-primary sqbutton use-points-1" data-points="'+products[i].points+'" onclick="usepoints('+products[i].points+')">Get '+ products[i].product +' for '+products[i].points+' points</button> <br />'
+  //         }
+  //         return pl;
+  // });
+
+  $.ajax({
+    type: 'POST',
+    url: apiUrl + 'addProductTransactions ',
+    data: inputData,
+    dataType: 'json',
+    contentType: 'application/json',
+    beforeSend: function() {
+      //display loading
+      document.getElementById('loader').style.display = "block";
+    },
+    success: function(data) {
+      document.getElementById('loader').style.display = "none";
+      console.log(data)
+
+       $('#loyalty').html(function() {
+             var pl = '';
+              var transactionData = data.success;
+                for (var i = 0; i < transactionData.length; i++) {
+            pl = pl + '<button class="btn btn-primary sqbutton use-points-1" data-points="'+transactionData[i].points+'" onclick="usepoints('+transactionData[i].points+')">Get '+ transactionData[i].product +' for '+transactionData[i].points+' points</button> <br />'
+          }
+          return pl;
+        });
+    }
+  });
+
+
+});
+
+function usepoints(data) {
+  console.log(data)
+  usePoints(data);
+}
+
+// $('.use-points-1').live('click',function(){
+//   console.log("jhjhjhjjhjj");
+//   var points = $(this).data('points');  
+//   alert(points);
+//   //usePoints(points);
+// });
 
 $('.use-points-50').click(function() {
   usePoints(50);

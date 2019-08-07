@@ -122,3 +122,62 @@ body {
 td { 
   vertical-align: bottom;
 }
+
+.modal-dialog {
+  position:absolute;
+  top:50% !important;
+  transform: translate(0, -50%) !important;
+  -ms-transform: translate(0, -50%) !important;
+  -webkit-transform: translate(0, -50%) !important;
+  margin:auto 35%;
+  width:90%;
+  //height:50%;
+}
+.coupon {
+  border-radius: 25px;
+  border: 2px solid #2C61FB;
+  padding: 20px; 
+  margin: 20px;
+  float: left;
+}
+
+.producttext{
+  color:#3364FB;
+  font-weight: 500
+}
+
+.proddetails{
+  font-size: 20px;
+  font-weight: 500
+}
+
+.containers {
+  padding: 2px 16px;
+  text-align: center;
+}
+
+.promo {
+  padding: 3px;
+  color:#F59646;
+}
+.rows {margin: 0 -5px;}
+
+/* Clear floats after the columns */
+.rows:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.sqbutton {
+  background-color: #007bff;
+  border: #007bff;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+  width: 300px;
+}

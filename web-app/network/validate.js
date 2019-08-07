@@ -18,7 +18,7 @@ module.exports = {
       response.error = "Account number must be at least six digits long";
       console.log(response.error);
       return response;
-    } else if (!isInt(accountNumber)) {
+    } else if (!/^\d+$/.test(accountNumber)) {
       response.error = "Account number must be all numbers";
       console.log(response.error);
       return response;

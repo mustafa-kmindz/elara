@@ -3,12 +3,11 @@
 //get libraries
 const express = require('express');
 const bodyParser = require('body-parser');
-const request = require('request');
-const path = require('path')
+const path = require('path');
+const cors = require('cors');
 
 //create express web-app
 const app = express();
-const router = express.Router();
 
 //get the libraries to call
 var network = require('./network/network.js');
@@ -16,6 +15,8 @@ var validate = require('./network/validate.js');
 var analysis = require('./network/analysis.js');
 
 //bootstrap application settings
+app.options('*',cors());
+app.use(cors());
 app.use(express.static('./public'));
 app.use('/scripts', express.static(path.join(__dirname, '/public/scripts')));
 app.use(bodyParser.json());
@@ -50,9 +51,10 @@ app.get('/about', function(req, res) {
   res.sendFile(path.join(__dirname + '/public/about.html'));
 });
 
-
+//var URI="http://3.16.137.69:8000";
+var URI="";
 //post call to register member on the network
-app.post('/api/registerMember', function(req, res) {
+app.post(URI+'/api/registerMember', function(req, res) {
 
   //declare variables to retrieve from request
   var accountNumber = req.body.accountnumber;
@@ -97,7 +99,7 @@ app.post('/api/registerMember', function(req, res) {
 });
 
 //post call to register partner on the network
-app.post('/api/registerPartner', function(req, res) {
+app.post(URI+'/api/registerPartner', function(req, res) {
 
   //declare variables to retrieve from request
   var name = req.body.name;
@@ -138,7 +140,76 @@ app.post('/api/registerPartner', function(req, res) {
 });
 
 //post call to perform EarnPoints transaction on the network
-app.post('/api/earnPoints', function(req, res) {
+app.post(URI+'/api/addProduct', function(req, res) {
+
+  //declare variables to retrieve from request
+  var cardId = req.body.cardId;
+  var partnerId = req.body.partnerId;
+  var productName = req.body.productName;
+  var price = req.body.price;
+  var points = parseFloat(req.body.points);
+
+  //print variables
+  console.log('Using param - points: ' + points + ' partnerId: ' + partnerId + ' pruductName: ' + productName + ' price: ' + price);
+
+  //validate points field
+  validate.validatePoints(points)
+    .then((checkPoints) => {
+      //return error if error in response
+      if (checkPoints.error != null) {
+        res.json({
+          error: checkPoints.error
+        });
+        return;
+      } else {
+        points = checkPoints;
+        //else perforn EarnPoints transaction on the network
+        network.addProductTransaction(cardId, partnerId, productName, price, points)
+          .then((response) => {
+            //return error if error in response
+            if (response.error != null) {
+              res.json({
+                error: response.error
+              });
+            } else {
+              //else return success
+              res.json({
+                success: response
+              });
+            }
+          });
+      }
+    });
+
+});
+
+//post call to perform EarnPoints transaction on the network
+app.post(URI+'/api/addProductTransactions', function(req, res) {
+
+  //declare variables to retrieve from request
+  var cardId = req.body.cardId;
+  var partnerId = req.body.partnerId;
+
+  //print variables
+  console.log('Using param - partnerId: ' + partnerId);
+        network.addProductTransactionsInfo(cardId, partnerId)
+          .then((response) => {
+            //return error if error in response
+            if (response.error != null) {
+              res.json({
+                error: response.error
+              });
+            } else {
+              //else return success
+              res.json({
+                success: response
+              });
+            }
+          });
+});
+
+//post call to perform EarnPoints transaction on the network
+app.post(URI+'/api/earnPoints', function(req, res) {
 
   //declare variables to retrieve from request
   var accountNumber = req.body.accountnumber;
@@ -181,7 +252,7 @@ app.post('/api/earnPoints', function(req, res) {
 });
 
 //post call to perform UsePoints transaction on the network
-app.post('/api/usePoints', function(req, res) {
+app.post(URI+'/api/usePoints', function(req, res) {
 
   //declare variables to retrieve from request
   var accountNumber = req.body.accountnumber;
@@ -225,7 +296,7 @@ app.post('/api/usePoints', function(req, res) {
 });
 
 //post call to retrieve member data, transactions data and partners to perform transactions with from the network
-app.post('/api/memberData', function(req, res) {
+app.post(URI+'/api/memberData', function(req, res) {
 
   //declare variables to retrieve from request
   var accountNumber = req.body.accountnumber;
@@ -298,10 +369,8 @@ app.post('/api/memberData', function(req, res) {
                   //else add partners data to return object
                   returnData.partnersData = partnersInfo;
                 }
-
                 //return returnData
                 res.json(returnData);
-
               });
             });
         });
@@ -310,7 +379,7 @@ app.post('/api/memberData', function(req, res) {
 });
 
 //post call to retrieve partner data and transactions data from the network
-app.post('/api/partnerData', function(req, res) {
+app.post(URI+'/api/partnerData', function(req, res) {
 
   //declare variables to retrieve from request
   var partnerId = req.body.partnerid;
@@ -369,11 +438,24 @@ app.post('/api/partnerData', function(req, res) {
                 //add total points given by partner to return object
                 returnData.pointsGiven = analysis.totalPointsGiven(earnPointsResults);
               }
-
-              //return returnData
-              res.json(returnData);
-
-            });
+            })
+            .then(() => {
+              //get addProduct transactions from the network
+              network.addProductTransactionsInfo(cardId, partnerId) 
+              .then((addProductResults) => {
+                //return error if error in response
+                if (addProductResults.error != null) {
+                  res.json({
+                    error: addProductResults.error
+                  });
+                } else {
+                  //else add transaction data to return object
+                  returnData.addProductResults = addProductResults; 
+                }
+                //return returnData
+                res.json(returnData);
+              })
+            })
         });
     });
 
