@@ -242,14 +242,14 @@ module.exports = {
   },
 
   /*
-  * Perform AddProduct transaction
+  * Perform AddOffer transaction
   * @param {String} cardId Card id to connect to network
   * @param {String} partnerId Partner Id of partner
   * @param {String} productName Name of Product to be added
-  * @param {Integer} price Price of the product
+  * @param {Integer} price Price of the Product
   * @param {Integer} points Points value
   */
- addProductTransaction: async function (cardId, partnerId, productName, price, points) {
+ addOfferTransaction: async function (cardId, partnerId, productName, price, points) {
 
   // Create a new file system based wallet for managing identities.
   const walletPath = path.join(process.cwd(), '/wallet');
@@ -267,17 +267,68 @@ module.exports = {
     // Get the contract from the network.
     const contract = network.getContract('customerloyalty');
     
-    let addProduct = {};
-    addProduct.partner = partnerId;
-    addProduct.points = points;
-    addProduct.product = productName;
-    addProduct.price = price;
+    let addOffer = {};
+    addOffer.partner = partnerId;
+    addOffer.points = points;
+    addOffer.product = productName;
+    addOffer.price = price;
 
     // Submit the specified transaction.
-    console.log('\nSubmit AddProduct transaction.');
-    const addProductResponse = await contract.submitTransaction('AddProduct', JSON.stringify(addProduct));
-    console.log('addProductResponse: ');
-    console.log(JSON.parse(addProductResponse.toString()));
+    console.log('\nSubmit AddOffer transaction.');
+    const addOfferResponse = await contract.submitTransaction('AddOffer', JSON.stringify(addOffer));
+    console.log('addOfferResponse: ');
+    console.log(JSON.parse(addOfferResponse.toString()));
+
+    // Disconnect from the gateway.
+    await gateway2.disconnect();
+
+    return true;
+  }
+  catch(err) {
+    //print and return error
+    console.log(err);
+    var error = {};
+    error.error = err.message;
+    return error;
+  }
+
+},
+
+/*
+  * Perform AddReward transaction
+  * @param {String} cardId Card id to connect to network
+  * @param {String} partnerId Partner Id of partner
+  * @param {String} itemName Name of item to be added
+  * @param {Integer} points Points value
+  */
+ addRewardTransaction: async function (cardId, partnerId, itemName, points) {
+
+  // Create a new file system based wallet for managing identities.
+  const walletPath = path.join(process.cwd(), '/wallet');
+  const wallet = new FileSystemWallet(walletPath);
+  console.log(`Wallet path: ${walletPath}`);
+
+  try {
+    // Create a new gateway for connecting to our peer node.
+    const gateway2 = new Gateway();
+    await gateway2.connect(ccp, { wallet, identity: cardId, discovery: gatewayDiscovery });
+
+    // Get the network (channel) our contract is deployed to.
+    const network = await gateway2.getNetwork('mychannel');
+
+    // Get the contract from the network.
+    const contract = network.getContract('customerloyalty');
+    
+    let addReward = {};
+    addReward.partner = partnerId;
+    addReward.points = points;
+    addReward.item = itemName;
+
+    // Submit the specified transaction.
+    console.log('\nSubmit AddReward transaction.');
+    const addRewardResponse = await contract.submitTransaction('AddReward', JSON.stringify(addReward));
+    console.log('addRewardResponse: ');
+    console.log(JSON.parse(addRewardResponse.toString()));
 
     // Disconnect from the gateway.
     await gateway2.disconnect();
@@ -525,10 +576,10 @@ module.exports = {
 
 
   /*
-  * Get all AddProduct transactions data
+  * Get all AddOffer transactions data
   * @param {String} cardId Card id to connect to network
   */
- addProductTransactionsInfo: async function (cardId, userId) {
+ addOfferTransactionsInfo: async function (cardId, userId) {
 
   // Create a new file system based wallet for managing identities.
   const walletPath = path.join(process.cwd(), '/wallet');
@@ -546,15 +597,57 @@ module.exports = {
     // Get the contract from the network.
     const contract = network.getContract('customerloyalty');
 
-    console.log(`\nGet add product transactions state for ${userId}`);
-    let addProductTransactions = await contract.evaluateTransaction('AddProductTransactionsInfo', userId);
-    addProductTransactions = JSON.parse(addProductTransactions.toString());
-    console.log(addProductTransactions);
+    console.log(`\nGet add Offer transactions state for ${userId}`);
+    let addOfferTransactions = await contract.evaluateTransaction('AddOfferTransactionsInfo', userId);
+    addOfferTransactions = JSON.parse(addOfferTransactions.toString());
+    console.log(addOfferTransactions);
 
     // Disconnect from the gateway.
     await gateway2.disconnect();
 
-    return addProductTransactions;
+    return addOfferTransactions;
+  }
+  catch(err) {
+    //print and return error
+    console.log(err);
+    var error = {};
+    error.error = err.message;
+    return error
+  }
+
+},
+
+  /*
+  * Get all AddReward transactions data
+  * @param {String} cardId Card id to connect to network
+  */
+ addRewardTransactionsInfo: async function (cardId, userId) {
+
+  // Create a new file system based wallet for managing identities.
+  const walletPath = path.join(process.cwd(), '/wallet');
+  const wallet = new FileSystemWallet(walletPath);
+  console.log(`Wallet path: ${walletPath}`);
+
+  try {
+    // Create a new gateway for connecting to our peer node.
+    const gateway2 = new Gateway();
+    await gateway2.connect(ccp, { wallet, identity: cardId, discovery: gatewayDiscovery });
+
+    // Get the network (channel) our contract is deployed to.
+    const network = await gateway2.getNetwork('mychannel');
+
+    // Get the contract from the network.
+    const contract = network.getContract('customerloyalty');
+
+    console.log(`\nGet add Reward transactions state for ${userId}`);
+    let addRewardTransactions = await contract.evaluateTransaction('AddRewardTransactionsInfo', userId);
+    addRewardTransactions = JSON.parse(addRewardTransactions.toString());
+    console.log(addRewardTransactions);
+
+    // Disconnect from the gateway.
+    await gateway2.disconnect();
+
+    return addRewardTransactions;
   }
   catch(err) {
     //print and return error

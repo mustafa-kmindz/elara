@@ -34,7 +34,12 @@ function updateMember() {
 
       //check data for error
       if (data.error) {
-        alert(data.error);
+        let error = data.error;
+        if((start=data.error.indexOf("Error"))>=0) {
+          let start = data.error.indexOf("Error");
+          error = data.error.slice(start);
+        }
+        alert(error);
         return;
       } else {
 
@@ -90,7 +95,13 @@ function updateMember() {
           return str;
         });
 
-        $('#loyalty').html(function() {
+        $('#earnloyalty').html(function() {
+
+          var htmls='';
+          return htmls;
+        });
+
+        $('#redeemloyalty').html(function() {
 
           var htmls='';
           return htmls;
@@ -115,7 +126,7 @@ function updateMember() {
   });
 }
 
-
+/*
 $('.earn-points-30').click(function() {
   earnPoints(30);
 });
@@ -127,7 +138,7 @@ $('.earn-points-80').click(function() {
 $('.earn-points-200').click(function() {
   earnPoints(200);
 });
-
+*/
 
 //check user input and call server
 $('.earn-points-transaction').click(function() {
@@ -135,7 +146,6 @@ $('.earn-points-transaction').click(function() {
   var formPoints = $('.earnPoints input').val();
   earnPoints(formPoints);
 });
-
 
 function earnPoints(formPoints) {
 
@@ -171,7 +181,12 @@ function earnPoints(formPoints) {
 
       //check data for error
       if (data.error) {
-        alert(data.error);
+        let error = data.error;
+        if((start=data.error.indexOf("Error"))>=0) {
+          let start = data.error.indexOf("Error");
+          error = data.error.slice(start);
+        }
+        alert(error);
         return;
       } else {
         //update member page and notify successful transaction
@@ -192,7 +207,7 @@ function earnPoints(formPoints) {
 }
 
 
-$('.use-partner select').on('change', function() {
+$('.earn-partner select').on('change', function() {
    var partnerid = $(this).find(':selected').attr('partner-id');
    var formCardId = $('.card-id input').val();
    //create json data
@@ -229,7 +244,7 @@ $('.use-partner select').on('change', function() {
 
   $.ajax({
     type: 'POST',
-    url: apiUrl + 'addProductTransactions ',
+    url: apiUrl + 'addOfferTransactions ',
     data: inputData,
     dataType: 'json',
     contentType: 'application/json',
@@ -241,11 +256,11 @@ $('.use-partner select').on('change', function() {
       document.getElementById('loader').style.display = "none";
       console.log(data)
 
-       $('#loyalty').html(function() {
+       $('#earnloyalty').html(function() {
              var pl = '';
               var transactionData = data.success;
                 for (var i = 0; i < transactionData.length; i++) {
-            pl = pl + '<button class="btn btn-primary sqbutton use-points-1" data-points="'+transactionData[i].points+'" onclick="usepoints('+transactionData[i].points+')">Get '+ transactionData[i].product +' for '+transactionData[i].points+' points</button> <br />'
+            pl = pl + '<button class="btn btn-primary" onclick="earnPoints('+transactionData[i].points+')">Purchase '+ transactionData[i].product +' for $' + transactionData[i].price + ' and earn ' + transactionData[i].points+' points</button> <br />'
           }
           return pl;
         });
@@ -255,18 +270,68 @@ $('.use-partner select').on('change', function() {
 
 });
 
-function usepoints(data) {
-  console.log(data)
-  usePoints(data);
-}
+$('.use-partner select').on('change', function() {
+  var partnerid = $(this).find(':selected').attr('partner-id');
+  var formCardId = $('.card-id input').val();
+  //create json data
+ var inputData = '{' + '"partnerId" : "' + partnerid + '", ' + '"cardId" : "' + formCardId + '"}';
+ console.log(inputData)
 
-// $('.use-points-1').live('click',function(){
-//   console.log("jhjhjhjjhjj");
-//   var points = $(this).data('points');  
-//   alert(points);
-//   //usePoints(points);
-// });
+ //$('#loyalty').html(function() {
 
+   //var pl = '';
+   //var transactionData = data.productResults;
+   // var products=[
+   //   {
+   //     "product": "Tshirt",
+   //     "price": "2000",
+   //     "points": 20,
+   //   },
+   //   {
+   //     "product": "Jeans",
+   //     "price": "3000",
+   //     "points": 30,
+   //   },
+   //   {
+   //     "product": "watch",
+   //     "price": "5000",
+   //     "points": 50,
+   //   }
+   // ];
+
+ //   for (var i = 0; i < products.length; i++) {
+ //           pl = pl + '<button class="btn btn-primary sqbutton use-points-1" data-points="'+products[i].points+'" onclick="usepoints('+products[i].points+')">Get '+ products[i].product +' for '+products[i].points+' points</button> <br />'
+ //         }
+ //         return pl;
+ // });
+
+ $.ajax({
+   type: 'POST',
+   url: apiUrl + 'addRewardTransactions ',
+   data: inputData,
+   dataType: 'json',
+   contentType: 'application/json',
+   beforeSend: function() {
+     //display loading
+     document.getElementById('loader').style.display = "block";
+   },
+   success: function(data) {
+     document.getElementById('loader').style.display = "none";
+     console.log(data)
+
+      $('#redeemloyalty').html(function() {
+            var pl = '';
+             var transactionData = data.success;
+               for (var i = 0; i < transactionData.length; i++) {
+           pl = pl + '<button class="btn btn-primary" onclick="usePoints('+transactionData[i].points+')">Get '+ transactionData[i].item +' for '+transactionData[i].points+' points</button> <br />'
+         }
+         return pl;
+       });
+   }
+ });
+});
+
+/*
 $('.use-points-50').click(function() {
   usePoints(50);
 });
@@ -278,14 +343,13 @@ $('.use-points-150').click(function() {
 $('.use-points-200').click(function() {
   usePoints(150);
 });
-
+*/
 
 //check user input and call server
 $('.use-points-transaction').click(function() {
   var formPoints = $('.usePoints input').val();
   usePoints(formPoints);
 });
-
 
 function usePoints(formPoints) {
 
@@ -322,7 +386,12 @@ function usePoints(formPoints) {
 
       //check data for error
       if (data.error) {
-        alert(data.error);
+        let error = data.error;
+        if((start=data.error.indexOf("Error"))>=0) {
+          let start = data.error.indexOf("Error");
+          error = data.error.slice(start);
+        }
+        alert(error);
         return;
       } else {
         //update member page and notify successful transaction

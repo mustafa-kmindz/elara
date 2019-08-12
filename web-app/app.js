@@ -139,8 +139,8 @@ app.post(URI+'/api/registerPartner', function(req, res) {
 
 });
 
-//post call to perform EarnPoints transaction on the network
-app.post(URI+'/api/addProduct', function(req, res) {
+//post call to perform AddOffer transaction on the network
+app.post(URI+'/api/addOffer', function(req, res) {
 
   //declare variables to retrieve from request
   var cardId = req.body.cardId;
@@ -163,8 +163,8 @@ app.post(URI+'/api/addProduct', function(req, res) {
         return;
       } else {
         points = checkPoints;
-        //else perforn EarnPoints transaction on the network
-        network.addProductTransaction(cardId, partnerId, productName, price, points)
+        //else perforn AddOffer transaction on the network
+        network.addOfferTransaction(cardId, partnerId, productName, price, points)
           .then((response) => {
             //return error if error in response
             if (response.error != null) {
@@ -183,8 +183,51 @@ app.post(URI+'/api/addProduct', function(req, res) {
 
 });
 
-//post call to perform EarnPoints transaction on the network
-app.post(URI+'/api/addProductTransactions', function(req, res) {
+//post call to perform AddReward transaction on the network
+app.post(URI+'/api/addReward', function(req, res) {
+
+  //declare variables to retrieve from request
+  var cardId = req.body.cardId;
+  var partnerId = req.body.partnerId;
+  var itemName = req.body.itemName;
+  var points = parseFloat(req.body.points);
+
+  //print variables
+  console.log('Using param - points: ' + points + ' partnerId: ' + partnerId + ' itemName: ' + itemName);
+
+  //validate points field
+  validate.validatePoints(points)
+    .then((checkPoints) => {
+      //return error if error in response
+      if (checkPoints.error != null) {
+        res.json({
+          error: checkPoints.error
+        });
+        return;
+      } else {
+        points = checkPoints;
+        //else perforn AddReward transaction on the network
+        network.addRewardTransaction(cardId, partnerId, itemName, points)
+          .then((response) => {
+            //return error if error in response
+            if (response.error != null) {
+              res.json({
+                error: response.error
+              });
+            } else {
+              //else return success
+              res.json({
+                success: response
+              });
+            }
+          });
+      }
+    });
+
+});
+
+//post call to get AddOffer transaction info from the network
+app.post(URI+'/api/addOfferTransactions', function(req, res) {
 
   //declare variables to retrieve from request
   var cardId = req.body.cardId;
@@ -192,7 +235,32 @@ app.post(URI+'/api/addProductTransactions', function(req, res) {
 
   //print variables
   console.log('Using param - partnerId: ' + partnerId);
-        network.addProductTransactionsInfo(cardId, partnerId)
+        network.addOfferTransactionsInfo(cardId, partnerId)
+          .then((response) => {
+            //return error if error in response
+            if (response.error != null) {
+              res.json({
+                error: response.error
+              });
+            } else {
+              //else return success
+              res.json({
+                success: response
+              });
+            }
+          });
+});
+
+//post call to get AddReward transaction info from the network
+app.post(URI+'/api/addRewardTransactions', function(req, res) {
+
+  //declare variables to retrieve from request
+  var cardId = req.body.cardId;
+  var partnerId = req.body.partnerId;
+
+  //print variables
+  console.log('Using param - partnerId: ' + partnerId);
+        network.addRewardTransactionsInfo(cardId, partnerId)
           .then((response) => {
             //return error if error in response
             if (response.error != null) {
@@ -440,25 +508,40 @@ app.post(URI+'/api/partnerData', function(req, res) {
               }
             })
             .then(() => {
-              //get addProduct transactions from the network
-              network.addProductTransactionsInfo(cardId, partnerId) 
-              .then((addProductResults) => {
+              //get addOffer transactions from the network
+              network.addOfferTransactionsInfo(cardId, partnerId) 
+              .then((addOfferResults) => {
                 //return error if error in response
-                if (addProductResults.error != null) {
+                if (addOfferResults.error != null) {
                   res.json({
-                    error: addProductResults.error
+                    error: addOfferResults.error
                   });
                 } else {
                   //else add transaction data to return object
-                  returnData.addProductResults = addProductResults; 
+                  returnData.addOfferResults = addOfferResults; 
                 }
-                //return returnData
-                res.json(returnData);
               })
-            })
+              .then(() => {
+                //get addReward transactions from the network
+                network.addRewardTransactionsInfo(cardId, partnerId) 
+                .then((addRewardResults) => {
+                  //return error if error in response
+                  if (addRewardResults.error != null) {
+                    res.json({
+                      error: addRewadResults.error
+                    });
+                  } else {
+                    //else add transaction data to return object
+                    returnData.addRewardResults = addRewardResults; 
+                  }
+                  //return returnData
+                  res.json(returnData);
+                })
+              });
         });
     });
 
+  });
 });
 
 //declare port

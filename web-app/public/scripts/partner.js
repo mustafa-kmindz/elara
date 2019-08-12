@@ -23,7 +23,7 @@ $('#add_offer').click(function() {
   //make ajax call
   $.ajax({
     type: 'POST',
-    url: apiUrl + 'addProduct',
+    url: apiUrl + 'addOffer',
     data: inputData,
     dataType: 'json',
     contentType: 'application/json',
@@ -33,7 +33,7 @@ $('#add_offer').click(function() {
       $("#offerproduct").val('');
       $("#offerprice").val('');
       $("#offerpoints").val('');
-      $('#productModal').modal('hide');
+      $('#offerModal').modal('hide');
       //document.getElementById('loader').style.display = "block";
     },
     success: function(data) {
@@ -48,6 +48,49 @@ $('#add_offer').click(function() {
 
     }
   });
+
+});
+
+$('#add_reward').click(function() {
+
+  var formPartnerId = $('.partner-id input').val();
+  var formCardId = $('.card-id input').val();
+  var rewarditem = $('#rewarditem').val();
+  var rewardpoints = $('#rewardpoints').val();
+ console.log(formPartnerId,rewarditem,rewardpoints);
+
+ //create json data
+var inputData = '{' + '"cardId" : "' + formCardId + '", ' + '"partnerId" : "' + formPartnerId + '", ' + '"itemName" : "' + rewarditem + '", ' + '"points" : "' + rewardpoints + '"}';
+console.log(inputData);
+
+
+//make ajax call
+$.ajax({
+ type: 'POST',
+ url: apiUrl + 'addReward',
+ data: inputData,
+ dataType: 'json',
+ contentType: 'application/json',
+ beforeSend: function() {
+   //display loading
+
+   $("#rewarditem").val('');
+   $("#rewardpoints").val('');
+   $('#rewardModal').modal('hide');
+   //document.getElementById('loader').style.display = "block";
+ },
+ success: function(data) {
+   console.log(data);
+   
+   updatePartner();
+   //remove loader
+   //document.getElementById('loader').style.display = "none";
+
+ },
+ error: function(jqXHR, textStatus, errorThrown) {
+
+ }
+});
 
 });
 
@@ -81,7 +124,12 @@ function updatePartner() {
 
       //check data for error
       if (data.error) {
-        alert(data.error);
+        let error = data.error;
+        if((start=data.error.indexOf("Error"))>=0) {
+          let start = data.error.indexOf("Error");
+          error = data.error.slice(start);
+        }
+        alert(error);
         return;
       } else {
 
@@ -123,10 +171,10 @@ function updatePartner() {
           return str;
         });
 
-        //update earn points transaction
-        $('#productlist').html(function() {
+        //update offer product transaction
+        $('#offerlist').html(function() {
           var pl = '';
-          var transactionData = data.addProductResults;
+          var transactionData = data.addOfferResults;
           // var transactionData=[
           //   {
           //     "product": "Tshirt",
@@ -144,6 +192,29 @@ function updatePartner() {
             pl = pl + '<div class="coupon"><div class="containers"><h2><b class="producttext">' + transactionData[i].product + '</b></h2> </div><div class="container"><p class="proddetails">Price: <span class="promo">' + transactionData[i].price + '$</span></p><p class="proddetails">Points: <span class="promo">' + transactionData[i].points + '</span></p></div></div>'
           }
           return pl;
+        });
+
+        //update offer product transaction
+        $('#rewardlist').html(function() {
+          var rl = '';
+          var transactionData = data.addRewardResults;
+          // var transactionData=[
+          //   {
+          //     "product": "Tshirt",
+          //     "price": "2000",
+          //     "points": 150,
+          //   },
+          //   {
+          //     "product": "Jeans",
+          //     "price": "5000",
+          //     "points": 400,
+          //   }
+          // ];
+
+          for (var i = 0; i < transactionData.length; i++) {
+            rl = rl + '<div class="coupon"><div class="containers"><h2><b class="producttext">' + transactionData[i].item + '</b></h2> </div><p class="proddetails">Points: <span class="promo">' + transactionData[i].points + '</span></p></div></div>'
+          }
+          return rl;
         });
 
         //remove login section

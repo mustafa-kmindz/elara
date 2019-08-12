@@ -29,7 +29,7 @@ body {
 }
 
 .tab-width {
-  width: 300px;
+  width: 250px;
 }
 
 .tab-width a {
@@ -131,7 +131,7 @@ td {
   -webkit-transform: translate(0, -50%) !important;
   margin:auto 35%;
   width:90%;
-  //height:50%;
+  /*height:50%;*/
 }
 .coupon {
   border-radius: 25px;
@@ -169,7 +169,7 @@ td {
   clear: both;
 }
 .sqbutton {
-  background-color: #007bff;
+  background-color: #1e6abb;
   border: #007bff;
   color: white;
   padding: 10px 20px;
@@ -179,5 +179,5 @@ td {
   margin: 4px 2px;
   cursor: pointer;
   border-radius: 5px;
-  width: 300px;
+  width: 250px;
 }

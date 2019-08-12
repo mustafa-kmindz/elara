@@ -4,7 +4,8 @@ const { Contract } = require('fabric-contract-api');
 const allPartnersKey = 'all-partners';
 const earnPointsTransactionsKey = 'earn-points-transactions';
 const usePointsTransactionsKey = 'use-points-transactions';
-const addProductTransactionsKey = 'add-product-transactions';
+const addOfferTransactionsKey = 'add-offer-transactions';
+const addRewardTransactionsKey = 'add-reward-transactions';
 
 class CustomerLoyalty extends Contract {
 
@@ -16,7 +17,8 @@ class CustomerLoyalty extends Contract {
         await ctx.stub.putState(allPartnersKey, Buffer.from(JSON.stringify([])));
         await ctx.stub.putState(earnPointsTransactionsKey, Buffer.from(JSON.stringify([])));
         await ctx.stub.putState(usePointsTransactionsKey, Buffer.from(JSON.stringify([])));
-        await ctx.stub.putState(addProductTransactionsKey, Buffer.from(JSON.stringify([])));
+        await ctx.stub.putState(addOfferTransactionsKey, Buffer.from(JSON.stringify([])));
+        await ctx.stub.putState(addRewardTransactionsKey, Buffer.from(JSON.stringify([])));
 
         console.info('============= END : Initialize Ledger ===========');
     }
@@ -85,19 +87,43 @@ class CustomerLoyalty extends Contract {
         return JSON.stringify(usePoints);
     }
 
-    async AddProduct(ctx, addProduct) {
-        addProduct = JSON.parse(addProduct);
-        console.log("add Product: "+addProduct)
-        let addProductTransactions = await ctx.stub.getState(addProductTransactionsKey);
-        addProductTransactions = JSON.parse(addProductTransactions);
-        addProductTransactions.push(addProduct);
-        await ctx.stub.putState(addProductTransactionsKey, Buffer.from(JSON.stringify(addProductTransactions)));
+    async AddOffer(ctx, addOffer) {
+        addOffer = JSON.parse(addOffer);
+        console.log("add Offer: "+addOffer)
+        let addOfferTransactions = await ctx.stub.getState(addOfferTransactionsKey);
+        addOfferTransactions = JSON.parse(addOfferTransactions);
+        addOfferTransactions.push(addOffer);
+        await ctx.stub.putState(addOfferTransactionsKey, Buffer.from(JSON.stringify(addOfferTransactions)));
 
-        return JSON.stringify(addProduct);
+        return JSON.stringify(addOffer);
     }
 
-    async AddProductTransactionsInfo(ctx, partnerId) {
-        let transactions = await ctx.stub.getState(addProductTransactionsKey);
+    async AddReward(ctx, addReward) {
+        addReward = JSON.parse(addReward);
+        console.log("add Offer: "+addReward)
+        let addRewardTransactions = await ctx.stub.getState(addRewardTransactionsKey);
+        addRewardTransactions = JSON.parse(addRewardTransactions);
+        addRewardTransactions.push(addReward);
+        await ctx.stub.putState(addRewardTransactionsKey, Buffer.from(JSON.stringify(addRewardTransactions)));
+
+        return JSON.stringify(addReward);
+    }
+
+    async AddOfferTransactionsInfo(ctx, partnerId) {
+        let transactions = await ctx.stub.getState(addOfferTransactionsKey);
+        transactions = JSON.parse(transactions);
+        console.log("Transaction: "+transactions);
+        let userTransactions = [];
+        for (var transaction of transactions) {
+            if (transaction.partner == partnerId){
+                userTransactions.push(transaction);
+            }
+        }
+        return JSON.stringify(userTransactions);
+    }
+
+    async AddRewardTransactionsInfo(ctx, partnerId) {
+        let transactions = await ctx.stub.getState(addRewardTransactionsKey);
         transactions = JSON.parse(transactions);
         console.log("Transaction: "+transactions);
         let userTransactions = [];
@@ -154,7 +180,9 @@ class CustomerLoyalty extends Contract {
     // get the state from key
     async GetState(ctx, key) {
         let data = await ctx.stub.getState(key);
-
+        if (!data || !data.toString()) {
+            throw new Error('User ' + key + ' does not exist');
+          }
         let jsonData = JSON.parse(data.toString());
         return JSON.stringify(jsonData);
     }

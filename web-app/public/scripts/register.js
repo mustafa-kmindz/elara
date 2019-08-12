@@ -37,7 +37,12 @@ $('.register-member').click(function() {
       //check data for error
       if (data.error) {
         document.getElementById('registration').style.display = "block";
-        alert(data.error);
+        let error = data.error;
+        if((start=data.error.indexOf("Error"))>=0) {
+          let start = data.error.indexOf("Error");
+          error = data.error.slice(start);
+        }
+        alert(error);
         return;
       } else {
         //notify successful registration
@@ -90,7 +95,12 @@ $('.register-partner').click(function() {
       //check data for error
       if (data.error) {
         document.getElementById('registration').style.display = "block";
-        alert(data.error);
+        let error = data.error;
+        if((start=data.error.indexOf("Error"))>=0) {
+          let start = data.error.indexOf("Error");
+          error = data.error.slice(start);
+        }
+        alert(error);
         return;
       } else {
         //notify successful registration
