@@ -84,7 +84,6 @@ chmod u+x ubuntu-prereqs.sh
 
 ```bash
 ./startLocalFabric.sh
-cd elara
 ```
 
 ## 3. Run the application
